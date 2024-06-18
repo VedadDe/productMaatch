@@ -5,12 +5,13 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 import logging
 from fuzzywuzzy import fuzz
+import joblib
 
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 
-# Load the model
+modelRandFor = joblib.load('./modelRandFor.joblib')
 model = load_model('./model.h5')
 embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
@@ -42,6 +43,20 @@ async def predict(productOne: str, productTwo: str):
         logging.info("Similarity:", similarities)
         
         return {'Similarity': similarities.item()}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post('/predict/ml')
+async def predict(productOne: str, productTwo: str):
+    try:
+        productOneEmbeddings = embedding_model.encode(productOne)
+        productTwoEmbeddings = embedding_model.encode(productTwo)
+        
+
+        productPairEmbeddings = np.concatenate(([productOneEmbeddings], [productTwoEmbeddings]), axis=1)
+        predictions = modelRandFor.predict(productPairEmbeddings)
+
+        return {'prediction': float(predictions[0])}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
