@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 app = FastAPI()
 
 # Load the model
-model = load_model('C:/Users/delic/Desktop/taslEvMl/taskEvolt/application_back/model.h5')
+model = load_model('./model.h5')
 embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 #poziva ann trenirani model i na osnovu njega donosi odluku
